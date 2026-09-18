@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using E_Commerce.Application.Common;
+using E_Commerce.Application.Common.PaginationReasult;
 using E_Commerce.Application.Contracts;
 using E_Commerce.Application.DTO_s.Product;
 using E_Commerce.Application.Params;
@@ -22,13 +23,16 @@ namespace E_Commerce.Application.Services
             this.mapper = mapper;
         }
 
-        public async Task<Result<IReadOnlyList<ProductDto>>> GetAllProductAsync(ProductQueryParams productQueryParams, CancellationToken ct = default)
+        public async Task<Result<PaginatedResult<ProductDto>>> GetAllProductAsync(ProductQueryParams productQueryParams, CancellationToken ct = default)
         {
             var spec = new ProductSpecifications(productQueryParams);
             var Products = await unitOfWork.GetRepository<Product, int>().GetAllWithSpecificationsAsync(spec,ct);
 
             var mappedProducts = mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductDto>>(Products);
-            return Result<IReadOnlyList<ProductDto>>.Ok(mappedProducts);
+           
+            var countSpec = new ProductCountSpecifications(productQueryParams);
+            var totalCount = await unitOfWork.GetRepository<Product, int>().GetProductcountWithSpecfiactionsAsync(countSpec, ct);
+            return Result<PaginatedResult<ProductDto>>.Ok(new PaginatedResult<ProductDto>(productQueryParams.PageIndex,productQueryParams.PageSize, totalCount, mappedProducts));
 
         }
 
