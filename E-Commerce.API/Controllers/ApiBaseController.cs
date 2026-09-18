@@ -1,6 +1,7 @@
 ﻿using E_Commerce.Application.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace E_Commerce.Controllers
 {
@@ -8,6 +9,11 @@ namespace E_Commerce.Controllers
     [ApiController]
     public class ApiBaseController : ControllerBase
     {
+        protected string GetEmailFromToken()
+        {
+            return User.FindFirstValue(ClaimTypes.Email)
+                ?? throw new UnauthorizedAccessException("Email claim not found in token.");
+        }
         public static ActionResult<T> ToActionResult<T>(Result<T> result)
         {
             if (result.IsSuccess) return new OkObjectResult(result.data);

@@ -15,23 +15,23 @@ namespace E_Commerce.Infrastructure.Repositories
             var query = inputQuery;
 
             if (specifications.IncludeExpressions.Count>0)
-            {
                 query = specifications.IncludeExpressions.Aggregate(query,(current, expression)  => current.Include(expression) );
-            }
+            
 
             if (specifications.Criteria is not null)
               query = query.Where(specifications.Criteria);
 
             if (specifications.OrderBy is not null )
-            {
                 query = query.OrderBy(specifications.OrderBy);
-            }
+            
 
             if (specifications.OrderByDesc is not null)
-            {
-                query = query.OrderBy(specifications.OrderByDesc);
-            }
+                query = query.OrderByDescending(specifications.OrderByDesc);
+            
 
+            if (specifications.IsPaginated)
+                query = query.Skip(specifications.Skip).Take(specifications.Take);
+            
 
             return query;
         } 

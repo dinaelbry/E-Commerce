@@ -9,10 +9,10 @@ namespace E_Commerce.Application.Specifications
     public class ProductSpecifications:BaseSpecifications<Product, int>
     {
         public ProductSpecifications(ProductQueryParams productQueryParams) :base(
-            p=>(!productQueryParams.brandId.HasValue) || p.BrandId== productQueryParams.brandId 
-            && (!productQueryParams.typeId.HasValue) || p.TypeId == productQueryParams.typeId
-            && (string.IsNullOrEmpty(productQueryParams.searchValue) || p.Name.ToLower().Contains(productQueryParams.searchValue.ToLower()))
-            ) 
+                p => (!productQueryParams.BrandId.HasValue || p.BrandId == productQueryParams.BrandId)
+                  && (!productQueryParams.TypeId.HasValue || p.TypeId == productQueryParams.TypeId)
+                  && (string.IsNullOrEmpty(productQueryParams.SearchValue) || p.Name.ToLower().Contains(productQueryParams.SearchValue.ToLower()))
+                        ) 
         { 
             AddInclude(p=> p.Brand); 
             AddInclude(p=> p.Type);
@@ -23,9 +23,10 @@ namespace E_Commerce.Application.Specifications
                 case ProductSortingOptions.NameDesc: AddOrderByDesc(p => p.Name); break;
                 case ProductSortingOptions.PriceAsc: AddOrderBy(p => p.Price); break;
                 case ProductSortingOptions.PriceDesc: AddOrderByDesc(p => p.Price); break;
-                _: break;
-
+                default: AddOrderBy(p => p.Id); break;
             }
+
+            ApplyPagination(productQueryParams.PageSize, productQueryParams.PageIndex);
 
         }
         public ProductSpecifications(int id) : base(p=>p.Id==id)
